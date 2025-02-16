@@ -12,7 +12,7 @@ if not ELEVENLABS_API_KEY:
 client = ElevenLabs(api_key=ELEVENLABS_API_KEY)
 
 
-def text_to_speech_file(text: str) -> str:
+async def text_to_speech(text: str) -> str:
     # Calling the text_to_speech conversion API with detailed parameters
     response = client.text_to_speech.convert(
         voice_id="nPczCjzI2devNBz1zQrb", # Adam pre-made voice
@@ -42,9 +42,6 @@ def text_to_speech_file(text: str) -> str:
     print(f"{save_file_path}: A new audio file was saved successfully!")
 
     # Return the path of the saved audio file
-    return save_file_path
+    
 
-
-if __name__ == "__main__":
-    text_to_speech_file("Hello, world! Meow.")
 
