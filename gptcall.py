@@ -14,8 +14,8 @@ def encode_image(image_path):
 
 client = OpenAI(api_key=api_key)
 
-def analyze_scene(image_path):
-    base64_image = encode_image(image_path)
+def analyze_scene():
+    base64_image = encode_image("person_detected.jpg")
 
     completion = client.chat.completions.create(
         model="gpt-4o-mini",

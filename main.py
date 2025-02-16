@@ -1,6 +1,5 @@
 import cv2
 from ultralytics import YOLO
-from time import sleep
 from gptcall import analyze_scene
 from serial import Serial
 
@@ -30,31 +29,21 @@ while True:
         
         # If humans detected, get coordinates of closest person
         if len(human_boxes) > 0:
-            # Get all human bounding boxes
-            human_coords = human_boxes.xyxy.cpu().numpy()
-            
-            # Calculate areas of bounding boxes to find closest person
-            largest_area = 0
-            closest_coords = None
-            
-            for coords in human_coords:
-                x1, y1, x2, y2 = coords
-                # Calculate area of bounding box
-                area = (x2 - x1) * (y2 - y1)
+            # Take 10 frames to let camera adjust/stabilize
+            for _ in range(50):
+                ret, frame = cap.read()
+                if not ret:
+                    break
+            if ret:
+                # Save the frame with detected person
+                cv2.imwrite('person_detected.jpg', frame)
                 
-                if area > largest_area:
-                    largest_area = area
-                    closest_coords = ((x1 + x2) / 2, (y1 + y2) / 2)
-            
-            if closest_coords is not None:
-                # Map coordinates to angles (assuming 0-180 degree range)
-                x_angle = int((1 - closest_coords[0] / frame.shape[1]) * 180)
-                y_angle = int(closest_coords[1] * 180 / frame.shape[0])
-                
-                # Send coordinates to Arduino
-                command = f"{x_angle},{y_angle}\n"
-                arduino.write(command.encode())
-                print(f"Sent to Arduino: {command}")
+                # Analyze scene and send to Arduino
+                scene_analysis = analyze_scene()
+                print(scene_analysis)
+                # Release resources and exit after taking photo
+                cap.release()
+                cv2.destroyAllWindows()
     
     # Visualize the results on the frame
     annotated_frame = results[0].plot()

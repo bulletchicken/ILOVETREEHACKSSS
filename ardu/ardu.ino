@@ -29,7 +29,7 @@ uint16_t angleToPulse(int servo, float angle) {
 }
 
 void setup() {
-    Serial.begin(115200);
+    Serial.begin(9600);
     Wire.begin();
     
     Serial.println("Initializing MPU6050...");
