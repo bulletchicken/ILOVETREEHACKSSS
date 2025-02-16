@@ -1,8 +1,9 @@
 import os
+import time
 from openai import OpenAI
 import base64
 from dotenv import load_dotenv
-from voice import text_to_speech
+from throat import text_to_speech
 from actualcalling import call_emergency_services
 from actualcalling import upload_audio_to_s3
 load_dotenv()  # Load environment variables from .env file
@@ -42,14 +43,22 @@ async def analyze_scene(prompt, image_path):
         ],
         max_tokens=500
     )
+    
+    print(completion.choices[0].message.content)
 
     # all to send a police report
-    with open('baramemory.txt', 'r') as f:
-        memory_text = f.read()
-    await text_to_speech(completion.choices[0].message.content + " " + memory_text)
-    #add scrapybara answers to this report.
-    await upload_audio_to_s3()
-    await call_emergency_services()
+    if image_path == "person_detected.jpg":
+        with open('baramemory.txt', 'r') as f:
+            memory_text = f.read()
+        await text_to_speech(completion.choices[0].message.content + " " + memory_text)
+        os.system("afplay output.mp3")
+        #add scrapybara answers to this report.
+        
+        #if that's not enough, it calls emergency services.
+        await call_emergency_services(completion.choices[0].message.content + memory_text)
+    else:
+        await text_to_speech(completion.choices[0].message.content)
+        os.system("afplay output.mp3")
     return completion.choices[0].message.content
 
 # Example usage:

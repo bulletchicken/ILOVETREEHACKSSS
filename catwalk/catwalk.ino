@@ -23,47 +23,121 @@ const int updateInterval = 20;  // ~50 Hz servo update
 // SETUP
 //----------------------------------------------------------
 void setup() {
+  Serial.begin(9600);
   // If using Adafruit PCA9685:
   // Wire.begin();
 pwm.begin();
   pwm.setPWMFreq(50); // 50Hz for standard servos
 
-  // Initialize all legs to standing position
-  write(2,  90); // Left Back  Shoulder
-  write(3,  90); // Left Back  Knee
-  write(12, 90); // Right Back Shoulder
-  write(13, 90); // Right Back Knee
-  write(0,  90); // Left Front Shoulder
-  write(1,  90); // Left Front Knee
-  write(14, 90); // Right Front Shoulder
-  write(15, 90); // Right Front Knee
-
-  delay(1000);
 }
 
 //----------------------------------------------------------
 // LOOP
 //----------------------------------------------------------
 void loop() {
-  unsigned long currentTime = millis();
-  if (currentTime - lastUpdate >= updateInterval) {
-    lastUpdate = currentTime;
-    catWalk();
+  Serial.println("Type to begin"); // Changed print to println to make message visible
+  
+  // Wait for input before proceeding
+  while (!Serial.available()) {
+    delay(100); // Small delay to prevent overwhelming the processor
   }
+
+  char command = Serial.read();
+  Serial.println(command); // Debug print to see what command is received
+  
+  if (command == '1') {
+    Serial.println("Standing up..."); // Debug message
+    
+    delay(2000);
+    
+    // Return to neutral walking position
+    write(2, 90);  // Left Back Shoulder
+    write(3, 90);  // Left Back Knee
+    write(12, 90); // Right Back Shoulder
+    write(13, 90); // Right Back Knee
+    write(0, 90);  // Left Front Shoulder
+    write(1, 90);  // Left Front Knee
+    write(14, 90); // Right Front Shoulder
+    write(15, 90); // Right Front Knee
+
+    delay(1000);
+
+    unsigned long startTime = millis();
+    while (millis() - startTime < 9000) { // Run for 9 seconds
+      unsigned long currentTime = millis();
+      if (currentTime - lastUpdate >= updateInterval) {
+        lastUpdate = currentTime;
+        catWalk();
+      }
+    }
+
+    write(2, 90);  // Left Back Shoulder
+    write(3, 90);  // Left Back Knee
+    write(12, 90); // Right Back Shoulder
+    write(13, 90); // Right Back Knee
+    write(0, 90);  // Left Front Shoulder
+    write(1, 90);  // Left Front Knee
+    write(14, 90); // Right Front Shoulder
+    write(15, 90); // Right Front Knee
+
+    lookAround();
+  }
+
+  
+
+  if (command == '2') {
+    Serial.println("Wagging tail slowly..."); // Debug message
+    // Wag tail back and forth several times with slower movement
+    for(int i = 0; i < 4; i++) {
+      write(8, 90); // Tail right
+      delay(500);    // Longer delay for slower movement
+      write(8, 50);  // Tail left 
+      delay(500);    // Longer delay for slower movement
+    }
+    write(8, 90);    // Return to center
+  }
+  
+  // Clear any remaining characters in the serial buffer
+  while(Serial.available() > 0) {
+    Serial.read();
+  }
+
+
+  // }
 }
 
 //----------------------------------------------------------
 // catWalk(): Four-beat walk cycle
 //----------------------------------------------------------
+
+void lookAround() {
+        for(int angle = 90; angle <= 120; angle += 2) {
+        write(6, angle);
+        delay(50);
+    }
+    
+    // Slowly turn head right 
+    for(int angle = 120; angle >= 50; angle -= 2) {
+        write(6, angle);
+        delay(50);
+    }
+    
+    // Return to center
+    for(int angle = 50; angle <= 70; angle += 2) {
+        write(6, angle);
+        delay(50);
+    }
+}
+
 void catWalk() {
   float t = millis() / 1000.0;
 
   // Frequency of the step cycle in Hz
-  float freq = 1;       // Slower frequency for demonstration
+  float freq = 0.7;       // Slower frequency for demonstration
   // Amplitude of the shoulder joint swing
   float ampShoulder = 30; // Try ~15..30 for smaller/bigger steps
   // Amplitude of the knee bend
-  float ampKnee     = 20; // Try smaller so it lifts foot gently
+  float ampKnee     = 30; // Try smaller so it lifts foot gently
 
   // For a 4-beat walk, each leg typically is out of phase by 90 degrees (π/2).
   // We'll define the order as:

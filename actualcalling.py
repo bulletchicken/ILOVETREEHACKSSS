@@ -53,12 +53,12 @@ async def upload_audio_to_s3():
         print(f"Error uploading to S3: {e}")
         return None
 
-async def call_emergency_services():
+async def call_emergency_services(prompt):
 
     
     try:
         call = client.calls.create(
-                    twiml=f'<?xml version="1.0" encoding="UTF-8"?><Response><Play>https://api.twilio.com/cowbell.mp3</Play></Response>',
+                    twiml=f'<?xml version="1.0" encoding="UTF-8"?><Response><Say>{prompt}</Say></Response>',
                     to=my_phone_number,
                     from_=twilio_number
                 )
