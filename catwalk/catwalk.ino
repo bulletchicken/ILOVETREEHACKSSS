@@ -29,6 +29,11 @@ void setup() {
 pwm.begin();
   pwm.setPWMFreq(50); // 50Hz for standard servos
 
+  write(0, 20);
+  write(15, 160);
+  write(2, 20);
+  write(13, 160);
+  
 }
 
 //----------------------------------------------------------
@@ -86,6 +91,7 @@ void loop() {
   
 
   if (command == '2') {
+    lookAround();
     Serial.println("Wagging tail slowly..."); // Debug message
     // Wag tail back and forth several times with slower movement
     for(int i = 0; i < 4; i++) {
@@ -95,6 +101,8 @@ void loop() {
       delay(500);    // Longer delay for slower movement
     }
     write(8, 90);    // Return to center
+
+    
   }
   
   // Clear any remaining characters in the serial buffer
@@ -109,6 +117,32 @@ void loop() {
 //----------------------------------------------------------
 // catWalk(): Four-beat walk cycle
 //----------------------------------------------------------
+
+void strech() {
+    for(int angle = 90; angle <= 110; angle += 1) {
+        write(0, angle);
+        write(1, angle);
+        write(2, angle);
+        write(3, angle);
+        write(12, angle);
+        write(13, angle);
+        write(14, angle);
+        write(15, angle);
+        delay(200);
+    }
+
+    for(int angle = 110; angle >= 90; angle -= 1) {
+        write(0, angle);
+        write(1, angle);
+        write(2, angle);
+        write(3, angle);
+        write(12, angle);
+        write(13, angle);
+        write(14, angle);
+        write(15, angle);
+        delay(50);
+    }
+}
 
 void lookAround() {
         for(int angle = 90; angle <= 120; angle += 2) {

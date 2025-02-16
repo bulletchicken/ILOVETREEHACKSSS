@@ -3,7 +3,7 @@ from dotenv import load_dotenv
 import uuid
 from elevenlabs import VoiceSettings
 from elevenlabs.client import ElevenLabs
-
+import asyncio
 load_dotenv()
 ELEVENLABS_API_KEY = os.getenv("ELEVENLABS_API_KEY")
 if not ELEVENLABS_API_KEY:
@@ -22,7 +22,7 @@ async def text_to_speech(text: str) -> str:
         voice_settings=VoiceSettings(
             stability=1.0,
             similarity_boost=1.0,
-            style=0.5,
+            style=0.9,
             use_speaker_boost=True,
         ),
     )
@@ -31,7 +31,7 @@ async def text_to_speech(text: str) -> str:
     # play(response)
 
     # Generating a unique file name for the output MP3 file
-    save_file_path = f"output.mp3"
+    save_file_path = f"spotify/spotted.mp3"
 
     # Writing the audio to a file
     with open(save_file_path, "wb") as f:
@@ -44,4 +44,5 @@ async def text_to_speech(text: str) -> str:
     # Return the path of the saved audio file
     
 
-
+if __name__ == "__main__":
+    asyncio.run(text_to_speech("I have spotted someone! Meow meow meow..."))
